@@ -147,6 +147,16 @@ const colorsize = (ctx: CanvasRenderingContext2D, {r, g, b}: {r: number; g: numb
   ctx.putImageData(imageData, 0, 0);
 }
 
+const grayscale = document.getElementsByName('grayscale')[0] as HTMLInputElement;
+const blur = document.getElementsByName('blur')[0] as HTMLInputElement;
+const brightness = document.getElementsByName('brightness')[0] as HTMLInputElement;
+const contrast = document.getElementsByName('contrast')[0] as HTMLInputElement;
+
+const grayscaleText = document.getElementById('grayscale') as HTMLSpanElement;
+const blurText = document.getElementById('blur') as HTMLSpanElement;
+const brightnessText = document.getElementById('brightness') as HTMLSpanElement;
+const contrastText = document.getElementById('contrast') as HTMLSpanElement;
+
 const MEDIA_LABEL = 'Logitech BRIO';
 const isFlipX = true;
 const isColorsize = false;
@@ -165,61 +175,25 @@ const isColorsize = false;
 // const contrastValue = 1.2;
 
 const main = async () => { try {
-  const webcam = await webcamLoaded(MEDIA_LABEL) as HTMLVideoElement | HTMLImageElement;
+  const urlQuery = location.search;
+  const mediaLabel = urlQuery.split('label=')[1] ?? 'Logitech BRIO';
+
+  const filter = {
+    grayscale: 100,
+    blur: 0.7,
+    brightness: 1.2,
+    contrast: 1.15,
+  }
+  
+  const setLocalStorage = (value: any) => localStorage.setItem('filters', JSON.stringify(value));
+  const storage = JSON.parse(localStorage.getItem('filters') as string) ?? filter;
+  setLocalStorage(storage);
+
+  const webcam = await webcamLoaded(mediaLabel) as HTMLVideoElement | HTMLImageElement;
   const canvas = document.getElementById('canvas') as HTMLCanvasElement;
   const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
   canvas.width = 1920;
   canvas.height = 1080;
-
-  const grayscale = document.getElementsByName('grayscale')[0] as HTMLInputElement;
-  // const hue = document.getElementsByName('hue')[0] as HTMLInputElement;
-  const blur = document.getElementsByName('blur')[0] as HTMLInputElement;
-  const brightness = document.getElementsByName('brightness')[0] as HTMLInputElement;
-  const contrast = document.getElementsByName('contrast')[0] as HTMLInputElement;
-
-  const grayscaleText = document.getElementById('grayscale') as HTMLSpanElement;
-  // const hueText = document.getElementById('hue') as HTMLSpanElement;
-  const blurText = document.getElementById('blur') as HTMLSpanElement;
-  const brightnessText = document.getElementById('brightness') as HTMLSpanElement;
-  const contrastText = document.getElementById('contrast') as HTMLSpanElement;
-
-  let grayscaleValue = grayscale.value;
-  // let hueValue = hue.value;
-  let brightnessValue = brightness.value;
-  let blurValue = blur.value;
-  let contrastValue = contrast.value;
-
-  grayscaleText.innerText = grayscaleValue;
-  // hueText.innerText = hueValue;
-  blurText.innerText = blurValue;
-  brightnessText.innerText = brightnessValue;
-  contrastText.innerText = contrastValue;
-
-  grayscale.oninput = (ev: any) => {
-    const target = ev.target as HTMLInputElement
-    grayscaleValue = target.value;
-    grayscaleText.innerText = grayscaleValue;
-  }
-  // hue.oninput = (ev: any) => {
-  //   const target = ev.target as HTMLInputElement
-  //   hueValue = target.value;
-  //   hueText.innerText = hueValue;
-  // }
-  blur.oninput = (ev: any) => {
-    const target = ev.target as HTMLInputElement
-    blurValue = target.value;
-    blurText.innerText = blurValue;
-  }
-  brightness.oninput = (ev: any) => {
-    const target = ev.target as HTMLInputElement
-    brightnessValue = target.value;
-    brightnessText.innerText = brightnessValue;
-  }
-  contrast.oninput = (ev: any) => {
-    const target = ev.target as HTMLInputElement
-    contrastValue = target.value;
-    contrastText.innerText = contrastValue;
-  }
 
   raf.clear();
   raf.add(() => {
@@ -230,7 +204,53 @@ const main = async () => { try {
     isColorsize && colorsize(ctx, {r: 245, g: 27, b: 58});
   });
 
+  let grayscaleValue = storage.grayscale;
+  let blurValue = storage.blur;
+  let brightnessValue = storage.brightness;
+  let contrastValue = storage.contrast;
 
+  grayscale.value = grayscaleValue;
+  blur.value = blurValue;
+  brightness.value = brightnessValue;
+  contrast.value = contrastValue;
+
+  grayscaleText.innerText = grayscaleValue;
+  blurText.innerText = blurValue;
+  brightnessText.innerText = brightnessValue;
+  contrastText.innerText = contrastValue;
+
+  grayscale.oninput = (ev: any) => {
+    const target = ev.target as HTMLInputElement
+    grayscaleValue = target.value;
+    grayscaleText.innerText = grayscaleValue;
+
+    storage.grayscale = Number(grayscaleValue);
+    setLocalStorage(storage);
+  }
+  blur.oninput = (ev: any) => {
+    const target = ev.target as HTMLInputElement
+    blurValue = target.value;
+    blurText.innerText = blurValue;
+
+    storage.blur = Number(blurValue);
+    setLocalStorage(storage);
+  }
+  brightness.oninput = (ev: any) => {
+    const target = ev.target as HTMLInputElement
+    brightnessValue = target.value;
+    brightnessText.innerText = brightnessValue;
+
+    storage.brightness = Number(brightnessValue);
+    setLocalStorage(storage);
+  }
+  contrast.oninput = (ev: any) => {
+    const target = ev.target as HTMLInputElement
+    contrastValue = target.value;
+    contrastText.innerText = contrastValue;
+
+    storage.contrast = Number(contrastValue);
+    setLocalStorage(storage);
+  }
 } catch (error: any) {
   throw new Error(error)
 }}
