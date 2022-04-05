@@ -157,6 +157,8 @@ const blurText = document.getElementById('blur') as HTMLSpanElement;
 const brightnessText = document.getElementById('brightness') as HTMLSpanElement;
 const contrastText = document.getElementById('contrast') as HTMLSpanElement;
 
+const resetBtn = document.getElementById('reset') as HTMLButtonElement;
+
 const MEDIA_LABEL = 'Logitech BRIO';
 const isFlipX = true;
 const isColorsize = false;
@@ -219,6 +221,23 @@ const main = async () => { try {
   brightnessText.innerText = brightnessValue;
   contrastText.innerText = contrastValue;
 
+  resetBtn.onclick = (ev: any) => {
+    setLocalStorage(filter);
+    grayscaleValue = filter.grayscale;
+    blurValue = filter.blur;
+    brightnessValue = filter.brightness;
+    contrastValue = filter.contrast;
+
+    grayscale.value = grayscaleValue;
+    blur.value = blurValue;
+    brightness.value = brightnessValue;
+    contrast.value = contrastValue;
+
+    grayscaleText.innerText = grayscaleValue;
+    blurText.innerText = blurValue;
+    brightnessText.innerText = brightnessValue;
+    contrastText.innerText = contrastValue;
+  }
   grayscale.oninput = (ev: any) => {
     const target = ev.target as HTMLInputElement
     grayscaleValue = target.value;
@@ -251,6 +270,8 @@ const main = async () => { try {
     storage.contrast = Number(contrastValue);
     setLocalStorage(storage);
   }
+  
+
 } catch (error: any) {
   throw new Error(error)
 }}
